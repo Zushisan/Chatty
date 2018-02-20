@@ -7,34 +7,38 @@ class App extends Component {
     super(props);
 
     this.state = {
-      currentUser: { name: "Bob" }, // optional. if currentUser is not defined, it means the user is Anonymous
+      currentUser: { name: "" }, // optional. if currentUser is not defined, it means the user is Anonymous
       messages: []};
   }
 
-  // componentDidMount() {
-  //   console.log("componentDidMount <App />");
-  //   setTimeout(() => {
-  //     console.log("Simulating incoming message");
-  //     // Add a new message to the list of messages in the data store
+  componentDidMount() {
+    console.log("componentDidMount <App />");
+    const that = this;
+    this.socket = new WebSocket("ws://localhost:3001/");
+    // const that = this;
+    // this.socket.onopen = function (event) {
+    //   that.socket.send("Here's some text that the server is urgently awaiting!");
+    // };
+   
+    this.socket.onmessage = function (event) {
+      const receivedMessage = JSON.parse(event.data);
+      const newMessage = { id: receivedMessage.id, username: receivedMessage.username, content: receivedMessage.content};
+      const messages = that.state.messages.concat(newMessage);
 
-  //   }, 3000);
-  // }
+      that.setState({ messages: messages })
+    }
+  }
 
   newMessage = (content) => {
-    //Random user ID generator
-    function generateRandomID() {
-      var randomID = "";
-      var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      for (var i = 0; i < 8; i++) {
-        randomID += possible.charAt(Math.floor(Math.random() * possible.length));
-      }
-      return randomID;
+    if (!this.state.currentUser.name){
+      this.state.currentUser.name = "Anonymous";
     }
-    const newMessage = { id: generateRandomID(), username: this.state.currentUser.name, content: content };
-    const messages = this.state.messages.concat(newMessage);
-    // Update the state of the app component.
-    // Calling setState will trigger a call to render() in App and all child components.
-    this.setState({ messages: messages })
+    const newMessage = { username: this.state.currentUser.name, content: content };
+    this.socket.send(JSON.stringify(newMessage));
+  }
+
+  newUser = (username) => {
+    this.setState({ currentUser: { name: username}});
   }
 
   render() {
@@ -43,7 +47,7 @@ class App extends Component {
       <div>
         <MessageList messages = {this.state.messages} />
         <ChatBar 
-        currentUser = {this.state.currentUser}
+        newUser = {this.newUser}
         newMessage = {this.newMessage}  />
       </div>
     );

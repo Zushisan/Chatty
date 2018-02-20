@@ -3,11 +3,15 @@ import React, { Component } from 'react';
 class ChatBar extends Component {
 
 	render() {
-		const currentUser = this.props.currentUser.name;
 		console.log("Rendering <ChatBar />");
 		return (
 			<footer className="chatbar">
-				<input className="chatbar-username" placeholder="Your Name (Optional)" value={currentUser}/>
+				<input className="chatbar-username" placeholder="Your Name (Optional)"
+				onChange = {event => {
+					// if(event.key === "Enter"){
+						this.props.newUser(event.target.value);
+					// };
+				}}/>
 				<input className="chatbar-message" placeholder="Type a message and hit ENTER"
 				onKeyPress = {event => {
 					if(event.key === "Enter"){
@@ -20,3 +24,5 @@ class ChatBar extends Component {
 	}
 }
 export default ChatBar;
+
+// value = { currentUser }
