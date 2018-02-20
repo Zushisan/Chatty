@@ -18,6 +18,7 @@ class App extends Component {
     const that = this;
     this.socket = new WebSocket("ws://localhost:3001/");
     // const that = this;
+
     // this.socket.onopen = function (event) {
     //   that.socket.send("Here's some text that the server is urgently awaiting!");
     // };
@@ -47,6 +48,12 @@ class App extends Component {
         case "incomingColor":
           const color = data.color.toString();
           that.setState({ currentUser: { name: that.state.currentUser.name, color: color } });
+          break;
+        case "initMessages":
+          // Initial messages
+          console.log(data)
+          const initMessages = data.messages;
+          that.setState({ messages: initMessages});
           break;
         default:
           // show an error in the console if the message type is unknown
