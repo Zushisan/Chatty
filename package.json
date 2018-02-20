@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint --ext .jsx,.js src",
     "start": "node chatty_server/server.js",
-    "install": "cd client && npm install && npm run build && cd .."
+    "install": "cd chatty_server && npm install && npm run build && cd .."
   },
   "repository": {
     "type": "git",
