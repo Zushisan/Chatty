@@ -16,6 +16,7 @@ class App extends Component {
   componentDidMount() {
     console.log("componentDidMount <App />");
     const that = this;
+    this.scrollToBottom();
     this.socket = new WebSocket("ws://localhost:3001/");
     // const that = this;
 
@@ -24,7 +25,7 @@ class App extends Component {
     // };
    
     this.socket.onmessage = function (event) {
-
+      that.scrollToBottom();
       const data = JSON.parse(event.data);
       switch (data.type) {
         case "incomingMessage":
@@ -59,6 +60,7 @@ class App extends Component {
           // show an error in the console if the message type is unknown
           throw new Error("Unknown event type " + data.type);
       }
+      that.scrollToBottom();
     }
   }
 
@@ -77,6 +79,10 @@ class App extends Component {
     const newUser = { type: "postNotification", content: `${this.state.currentUser.name} changed their name to ${username}` }
     this.socket.send(JSON.stringify(newUser));
     this.setState({ currentUser: { name: username, color: this.state.currentUser.color } });
+  }
+
+  scrollToBottom = () => {
+    window.scrollTo(0, document.body.scrollHeight);
   }
 
   render() {
@@ -106,3 +112,5 @@ class App extends Component {
   }
 }
 export default App;
+
+
