@@ -7,7 +7,7 @@ class App extends Component {
     super(props);
 
     this.state = {
-      currentUser: { name: "" }, // optional. if currentUser is not defined, it means the user is Anonymous
+      currentUser: { name: "", color: "" }, // optional. if currentUser is not defined, it means the user is Anonymous
       messages: [],
       connectedUsers: "0"
     };
@@ -28,8 +28,9 @@ class App extends Component {
       switch (data.type) {
         case "incomingMessage":
           // handle incoming message
-          const newMessage = { id: data.id, username: data.username, content: data.content };
-          const messages = that.state.messages.concat(newMessage);
+          const newColor = data.color.toString();
+          const newMessage = { id: data.id, username: data.username, content: data.content, color: newColor };
+          const messages = that.state.messages.concat(newMessage);          
           that.setState({ messages: messages });
           break;
         case "incomingNotification":
@@ -43,6 +44,10 @@ class App extends Component {
           const numberOfConnexions = data.count;
           that.setState({ connectedUsers: numberOfConnexions.toString() })
           break;
+        case "incomingColor":
+          const color = data.color.toString();
+          that.setState({ currentUser: { name: that.state.currentUser.name, color: color } });
+          break;
         default:
           // show an error in the console if the message type is unknown
           throw new Error("Unknown event type " + data.type);
@@ -54,7 +59,7 @@ class App extends Component {
     if (!this.state.currentUser.name){
       this.state.currentUser.name = "Anonymous";
     }
-    const newMessage = { type: "postMessage", username: this.state.currentUser.name, content: content };
+    const newMessage = { type: "postMessage", username: this.state.currentUser.name, content: content, color: this.state.currentUser.color };
     this.socket.send(JSON.stringify(newMessage));
   }
 
@@ -64,7 +69,7 @@ class App extends Component {
     }
     const newUser = { type: "postNotification", content: `${this.state.currentUser.name} changed their name to ${username}` }
     this.socket.send(JSON.stringify(newUser));
-    this.setState({ currentUser: { name: username } });
+    this.setState({ currentUser: { name: username, color: this.state.currentUser.color } });
   }
 
   render() {

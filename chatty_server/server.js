@@ -23,6 +23,14 @@ const wss = new SocketServer({ server }); // set it like the example
 wss.on('connection', (ws) => {
 	console.log('Client connected');
 
+	const colors = ["#3AD629", "#2990D6", "#C529D6", "#D66F29"]
+	let color = colors[Math.floor(Math.random() * colors.length)];
+	// ws.color = color; // Custom attribute with the color associated with that user
+	let userColor = { type: "incomingColor", color}
+	ws.send(JSON.stringify(userColor));
+
+
+
 	// Broadcast to all.
 	ws.broadcast = function broadcast(data) {
 		wss.clients.forEach(function each(client) {

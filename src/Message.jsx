@@ -6,10 +6,12 @@ class Message extends Component {
 		const username = this.props.username;
 		const content = this.props.content;
 		const userChange = this.props.userChange;
+		const color = this.props.color;
+		console.log(color)
 		return (
 			<div>
 				<div className="message">
-					<span className="message-username">{username}</span>
+					<span className="message-username" style={{color: color}}>{username}</span>
 					<span className="message-content">{content}</span>
 				</div>
 				{userChange &&
