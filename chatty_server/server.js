@@ -25,7 +25,6 @@ wss.on('connection', (ws) => {
 
 	// Broadcast to all.
 	ws.broadcast = function broadcast(data) {
-		console.log("in broadcast", data)
 		wss.clients.forEach(function each(client) {
 			//if (client.readyState === SocketServer.OPEN) {
 				client.send(data);
@@ -35,9 +34,20 @@ wss.on('connection', (ws) => {
 
 	ws.on('message', function incoming(data) {
 		data = JSON.parse(data);
-		data.id = uuidv4();
+		switch (data.type) {
+			case "postMessage":
+				data.id = uuidv4();
+				data.type = "incomingMessage";
+				break;
+			case "postNotification":
+				data.type = "incomingNotification";
+				break;
+			default:
+				data = JSON.stringify(data);
+				ws.broadcast(data);
+		}
 		data = JSON.stringify(data);
-		ws.broadcast(data);
+		ws.broadcast(data);	
 	});
 
 	// Set up a callback for when a client closes the socket. This usually means they closed their browser.
