@@ -8,7 +8,8 @@ class App extends Component {
 
     this.state = {
       currentUser: { name: "" }, // optional. if currentUser is not defined, it means the user is Anonymous
-      messages: []
+      messages: [],
+      connectedUsers: "0"
     };
   }
 
@@ -36,6 +37,11 @@ class App extends Component {
           const newUsernameMessage = { userChange: data.content };
           const notifications = that.state.messages.concat(newUsernameMessage);
           that.setState({ messages: notifications });
+          break;
+        case "incomingNumberOfConnexions":
+          // handle the number of connected users
+          const numberOfConnexions = data.count;
+          that.setState({ connectedUsers: numberOfConnexions.toString() })
           break;
         default:
           // show an error in the console if the message type is unknown
@@ -65,13 +71,24 @@ class App extends Component {
     console.log("Rendering <App/>");
     return (
       <div>
-        <MessageList 
-          messages = {this.state.messages}
-        />
-        <ChatBar 
-          newUser = {this.newUser}
-          newMessage = {this.newMessage}  
-        />
+        <nav className="navbar">
+          <a href="/" className="navbar-brand">Chatty</a>
+          <span className="navbar-users">
+            {(this.state.connectedUsers === "1") ?
+              <span> You are alone right now. </span> :
+              <span>Connected users: {this.state.connectedUsers} </span>            
+            }
+          </span>
+        </nav>
+        <div>
+          <MessageList 
+            messages = {this.state.messages}
+          />
+          <ChatBar 
+            newUser = {this.newUser}
+            newMessage = {this.newMessage}  
+          />
+        </div>
       </div>
     );
   }

@@ -50,8 +50,14 @@ wss.on('connection', (ws) => {
 		ws.broadcast(data);	
 	});
 
+	let numberOfConnexions = { type: "incomingNumberOfConnexions", count: wss.clients.size };
+	ws.broadcast(JSON.stringify(numberOfConnexions));
 	// Set up a callback for when a client closes the socket. This usually means they closed their browser.
-	ws.on('close', () => console.log('Client disconnected'));
+	ws.on('close', () =>{
+		console.log('Client disconnected');
+		numberOfConnexions.count = wss.clients.size;
+		ws.broadcast(JSON.stringify(numberOfConnexions));
+	}); 
 });
 
 
