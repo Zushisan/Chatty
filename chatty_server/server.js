@@ -89,7 +89,7 @@ wss.on("connection", ws => {
         data.id = uuidv4();
         data.type = "incomingMessage";
         messages.push(data);
-        messagesInit = { type: "initMessages", messages: messages };
+        messagesInit = { type: "initMessages", messages: messages, rooms: rooms };
 
         if(data.room === "botRoom"){
           cleverMessage = JSON.stringify(data.content);
