@@ -2,7 +2,9 @@
 
 const express = require("express");
 const SocketServer = require("ws").Server; // remove server
+const CheckSocket = require("ws"); // remove server
 const uuidv4 = require("uuid/v4");
+const Cleverbot = require("cleverbot-node");
 
 // Set the port to 3001
 const PORT = 3001;
@@ -17,6 +19,10 @@ const server = express()
 
 // Create the WebSockets server
 const wss = new SocketServer({ server }); // set it like the example
+
+cleverbot = new Cleverbot();
+cleverbot.configure({ botapi: "CC7c4DeP803JvvtSRqfONDPOPSw" }); // I DONT CARE
+let botData = "";
 
 // Set up a callback that will run when a client connects to the server
 // When a client connects they are assigned a socket, represented by
@@ -43,16 +49,26 @@ wss.on("connection", ws => {
   let color = colors[Math.floor(Math.random() * colors.length)];
   // ws.color = color; // Custom attribute with the color associated with that user
   let userColor = { type: "incomingColor", color };
+  let userId = { type: "incomingId", id: uuidv4() };
 
   ws.send(JSON.stringify(userColor));
   ws.send(JSON.stringify(messagesInit));
+  ws.send(JSON.stringify(userId));
 
   // Broadcast to all.
   ws.broadcast = function broadcast(data) {
     wss.clients.forEach(function each(client) {
-      //if (client.readyState === SocketServer.OPEN) {
-      client.send(data);
-      //}
+      if (client.readyState === CheckSocket.OPEN) {
+        client.send(data);
+      }
+    });
+  };
+
+  ws.allbutme = function allbutme(data) {
+    wss.clients.forEach(function each(client) {
+      if (client !== ws && client.readyState === CheckSocket.OPEN) {
+        client.send(data);
+      }
     });
   };
 
@@ -64,6 +80,22 @@ wss.on("connection", ws => {
         data.type = "incomingMessage";
         messages.push(data);
         messagesInit = { type: "initMessages", messages: messages };
+
+        cleverMessage = JSON.stringify(data.content);
+        cleverbot.write(cleverMessage, function(response) {
+          let botResponse = {
+            type: "incomingMessage",
+            username: "bot",
+            content: response.clever_output,
+            id: uuidv4(),
+            color: "#20133b",
+            room: "botRoom"
+          };
+          messages.push(botResponse);
+          botResponse = JSON.stringify(botResponse);
+          ws.broadcast(botResponse);
+        });
+
         break;
       case "postNotification":
         data.type = "incomingNotification";
@@ -71,8 +103,17 @@ wss.on("connection", ws => {
         messagesInit = { type: "initMessages", messages: messages };
         break;
       case "postRoomChange":
-        data.type = "incomingRoomChange";
-        break;
+        data.type = "incomingRoomChange"; // We want to notify where the user went
+        data.content = `${data.user} joined the channel`;
+        data = JSON.stringify(data);
+        ws.allbutme(data);
+        return;
+      case "postRoomExit":
+        data.type = "incomingRoomExit";
+        data.content = `${data.user} left the channel`;
+        data = JSON.stringify(data);
+        ws.allbutme(data);
+        return;
       default:
         data = JSON.stringify(data);
         ws.broadcast(data);

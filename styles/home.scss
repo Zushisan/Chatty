@@ -13,7 +13,7 @@ img {
   width: 60%;
 }
 
-button {
+.inactive-button {
   -moz-box-shadow: inset 0px 1px 0px 0px #cf866c;
   -webkit-box-shadow: inset 0px 1px 0px 0px #cf866c;
   box-shadow: inset 0px 1px 0px 0px #cf866c;
@@ -55,7 +55,7 @@ button {
 
 }
 
-button:hover {
+.inactive-button:hover {
   background: -webkit-gradient(
     linear,
     left top,
@@ -76,9 +76,39 @@ button:hover {
   background-color: #bc3315;
 }
 
-button:active {
+.inactive-button:active {
 	position:relative;
 	top:1px;
+}
+
+.active-button {
+	-moz-box-shadow:inset 0px 1px 0px 0px #3dc21b;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #3dc21b;
+	box-shadow:inset 0px 1px 0px 0px #3dc21b;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #44c767), color-stop(1, #5cbf2a));
+	background:-moz-linear-gradient(top, #44c767 5%, #5cbf2a 100%);
+	background:-webkit-linear-gradient(top, #44c767 5%, #5cbf2a 100%);
+	background:-o-linear-gradient(top, #44c767 5%, #5cbf2a 100%);
+	background:-ms-linear-gradient(top, #44c767 5%, #5cbf2a 100%);
+	background:linear-gradient(to bottom, #44c767 5%, #5cbf2a 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#44c767', endColorstr='#5cbf2a',GradientType=0);
+	background-color:#44c767;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	border:1px solid #18ab29;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:13px;
+	padding:6px 24px;
+	text-decoration:none;
+  text-shadow:0px 1px 0px #2f6627;
+  margin: 9px auto auto 2%;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 30px;
 }
 
 .chatbar {

@@ -3,21 +3,34 @@ import React, { Component } from "react";
 class NavBar extends Component {
   render() {
     const users = this.props.connectedUsers;
+    let currentRoom = this.props.currentRoom;
+
+    // if(currentRoom === undefined){
+    //   currentRoom = "mainRoom";
+    // }
     return <nav className="navbar">
         <a href="/" className="navbar-brand">
           Chatty
         </a>
         
           <span>
-            <button name="mainRoom" onClick={event => {
-                this.props.changeRoom(event.target.name);
-              }}> Main Chat </button>
-            <button name="botRoom" onClick={event => {
-                this.props.changeRoom(event.target.name);
-              }}> Bot Chat </button>
-              <button name="lightRoom" onClick={event => {
-                this.props.changeRoom(event.target.name);
-              }}> Light Chat </button>
+            {(currentRoom === "mainRoom" ?
+              <button name="mainRoom" className="active-button"> Main Chat </button> :
+              <button name="mainRoom" className="inactive-button" onClick={event => {
+                  this.props.changeRoom(event.target.name);
+            }}> Main Chat </button>)}
+
+            {(currentRoom === "botRoom" ?
+              <button name="botRoom" className="active-button"> Bot Chat </button> :
+              <button name="botRoom" className="inactive-button" onClick={event => {
+                  this.props.changeRoom(event.target.name);
+            }}> Bot Chat </button>)}
+
+              {(currentRoom === "lightRoom" ?
+              <button name="lightRoom" className="active-button"> Light Chat </button> :
+              <button name="lightRoom" className="inactive-button" onClick={event => {
+                  this.props.changeRoom(event.target.name);
+            }}> Light Chat </button>)}
           </span>
         
 
@@ -32,3 +45,11 @@ class NavBar extends Component {
   }
 }
 export default NavBar;
+
+
+
+
+
+
+
+

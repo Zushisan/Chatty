@@ -3,17 +3,20 @@ import Message from "./Message.jsx";
 
 class MessageList extends Component {
   
-  MessagePresenter(messages) {
+  MessagePresenter(messages, currentRoom) {
+
     const messageList = messages.map(message => {
-      return (
-        <Message
-          key={message.id}
-          username={message.username}
-          content={message.content}
-          type={message.type}
-          color={message.color}
-        />
-      );
+      if(message.room === currentRoom){
+        return (
+          <Message
+            key={message.id}
+            username={message.username}
+            content={message.content}
+            type={message.type}
+            color={message.color}
+          />
+        );
+      }
     });
     return messageList;
   }
@@ -21,7 +24,7 @@ class MessageList extends Component {
   render() {
     return (
       <main className="messages">
-        {this.MessagePresenter(this.props.messages)}
+        {this.MessagePresenter(this.props.messages, this.props.currentRoom)}
       </main>
     );
   }

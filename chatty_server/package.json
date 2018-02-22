@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cleverbot-node": "^0.3.11",
     "express": "4.16.2",
     "uuid": "^3.2.1",
     "ws": "4.0.0"

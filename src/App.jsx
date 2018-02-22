@@ -8,7 +8,7 @@ class App extends Component {
     super(props);
 
     this.state = {
-      currentUser: { name: "", color: "", currentRoom: "mainRoom" }, // optional. if currentUser is not defined, it means the user is Anonymous
+      currentUser: {id:"", name: "Anonymous", color: "", currentRoom: "mainRoom" }, // optional. if currentUser is not defined, it means the user is Anonymous
       messages: [],
       connectedUsers: "",
       mainRoom: [],
@@ -21,11 +21,6 @@ class App extends Component {
     const that = this;
     this.scrollToBottom();
     this.socket = new WebSocket("ws://localhost:3001/");
-    // const that = this;
-
-    // this.socket.onopen = function (event) {
-    //   that.socket.send("Here's some text that the server is urgently awaiting!");
-    // };
 
     this.socket.onmessage = function(event) {
       that.scrollToBottom();
@@ -39,7 +34,8 @@ class App extends Component {
             type: "incomingMessage",
             username: data.username,
             content: data.content,
-            color: newColor
+            color: newColor,
+            room: data.room
           };
           const messages = that.state.messages.concat(newMessage);
           that.setState({ messages: messages });
@@ -48,7 +44,8 @@ class App extends Component {
           // handle incoming notification
           const newUsernameMessage = {
             content: data.content,
-            type: "incomingNotification"
+            type: "incomingNotification",
+            room: data.room
           };
           const notifications = that.state.messages.concat(newUsernameMessage);
           that.setState({ messages: notifications });
@@ -61,14 +58,14 @@ class App extends Component {
         case "incomingColor":
           const color = data.color.toString();
           that.setState({
-            currentUser: { name: that.state.currentUser.name, color: color }
+            currentUser: { name: that.state.currentUser.name, color: color, currentRoom: that.state.currentUser.currentRoom }
           });
           break;
         case "initMessages":
           // Initial messages
           const welcomeMessage = {
             type: "incomingNotification",
-            content: "------ MAIN CHAT ROOM ------"
+            content: "WELCOME TO CHATTY"
           };
           const initMessages = data.messages.concat(welcomeMessage);
           that.setState({ messages: initMessages });
@@ -78,17 +75,48 @@ class App extends Component {
           let newRoom = "";
           switch(data.room){
             case "mainRoom":
-              newRoom = { content: `------ MAIN CHAT ROOM ------`, type: "incomingNotification" };
+              newRoom = { content: data.content, type: "incomingNotification", room: data.room };
               break;
             case "botRoom":
-              newRoom = { content: `------ NOT SO CLEVER BOT ROOM ------`, type: "incomingNotification" };
+              newRoom = { content: data.content, type: "incomingNotification", room: data.room };
               break;
             case "lightRoom":
-              newRoom = { content: `------ LIGHTHOUSE LAB ROOM ------`, type: "incomingNotification" };
+              newRoom = { content: data.content, type: "incomingNotification", room: data.room };
               break;
+            default:
+              throw new Error("Uknown room " + data.room);
           }
+          // const newRoomNotification = data.messages.concat(newRoom);
           const newRoomNotification = that.state.messages.concat(newRoom);
           that.setState({ messages: newRoomNotification });
+          break;
+        case "incomingRoomExit":
+          // Setting the name format displayed, not really elegant
+          let exitRoom = "";
+          switch (data.oldRoom) {
+            case "mainRoom":
+              exitRoom = { content: data.content, type: "incomingNotification", room: data.oldRoom };
+              break;
+            case "botRoom":
+              exitRoom = { content: data.content, type: "incomingNotification", room: data.oldRoom };
+              break;
+            case "lightRoom":
+              exitRoom = { content: data.content, type: "incomingNotification", room: data.oldRoom };
+              break;
+            default:
+              throw new Error("Uknown room " + data.room);
+          }
+          const exitRoomNotification = that.state.messages.concat(exitRoom);
+          that.setState({ messages: exitRoomNotification });
+          break;
+        case "incomingId":
+          that.setState({
+            currentUser: {
+              id: data.id,
+              name: that.state.currentUser.name,
+              color: that.state.currentUser.color,
+              currentRoom: that.state.currentUser.currentRoom
+            }})
           break;
         default:
           // show an error in the console if the message type is unknown
@@ -106,7 +134,8 @@ class App extends Component {
       type: "postMessage",
       username: this.state.currentUser.name,
       content: content,
-      color: this.state.currentUser.color
+      color: this.state.currentUser.color,
+      room: this.state.currentUser.currentRoom
     };
     this.socket.send(JSON.stringify(newMessage));
   };
@@ -117,24 +146,23 @@ class App extends Component {
     }
     const newUser = {
       type: "postNotification",
-      content: `${
-        this.state.currentUser.name
-      } changed their name to ${username}`
+      content: `${this.state.currentUser.name} changed their name to ${username}`,
+      room: this.state.currentUser.currentRoom
     };
     this.socket.send(JSON.stringify(newUser));
     this.setState({
-      currentUser: { name: username, color: this.state.currentUser.color }
+      currentUser: { name: username, color: this.state.currentUser.color, currentRoom: this.state.currentUser.currentRoom }
     });
   };
 
   changeRoom = room => {
     const currentRoom = room;
-    console.log(room)
     let setRoom = this.state[room];
-    setRoom.push(this.state.currentUser.name); // Will be changed to IDs
+    setRoom.push(this.state.currentUser.id); // Will be changed to IDs
 
     let newState = {
       currentUser: {
+        id: this.state.currentUser.id,
         name: this.state.currentUser.name,
         color: this.state.currentUser.color,
         currentRoom: room
@@ -142,9 +170,12 @@ class App extends Component {
     };
 
     newState[room] = setRoom;
-    const toServer = { type:"postRoomChange", room}; // Info for our server
+    const toServerNew = { type:"postRoomChange", room: room, user: this.state.currentUser.name };
+    const toServerOld = { type: "postRoomExit", oldRoom: this.state.currentUser.currentRoom, user: this.state.currentUser.name };
+     // Info for our server
 
-    this.socket.send(JSON.stringify(toServer));
+    this.socket.send(JSON.stringify(toServerNew));
+    this.socket.send(JSON.stringify(toServerOld));
     this.setState(newState);
   };  
 
@@ -155,9 +186,9 @@ class App extends Component {
   render() {
     return (
       <div>
-        <NavBar changeRoom={this.changeRoom} connectedUsers={this.state.connectedUsers} />
+        <NavBar changeRoom={this.changeRoom} connectedUsers={this.state.connectedUsers} currentRoom={this.state.currentUser.currentRoom} />
         <div>
-          <MessageList messages={this.state.messages} />
+          <MessageList messages={this.state.messages} currentRoom={this.state.currentUser.currentRoom} />
           <ChatBar newUser={this.newUser} newMessage={this.newMessage} />
         </div>
       </div>
