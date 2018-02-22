@@ -1,45 +1,40 @@
-React Boilerplate
-=====================
+# Chatty App Project
 
-A minimal and light dev environment for ReactJS.
+Chatty is a simple chatting app supporting multiple users. Chatty has 3 differents chat rooms, don't forget to say hello to the bot in the bot chat room !
 
-### Usage
+Chatty is built with:
+  Webpack with Babel, JSX, ES6, webpack dev server (comes with boilerplate)
+  WebSockets using Node package ws on the server-side, and native WebSocket on client side
+  ReactJS
 
-Clone the boilerplate and create your own git repo.
+## Getting Started
 
-```
-git clone git@github.com:lighthouse-labs/react-simple-boilerplate.git
-cd react-simple-boilerplate
-git remote rm origin
-git remote add origin [YOUR NEW REPOSITORY]
-# Manually update your package.json file
-```
+1. Install the server dependencies in /chatty_server using the `npm install` command and start the server with the `node server.js` command.
+2. In another terminal install the client dependencies with the `npm install` command and start the application with the `npm start` command.
+3. Go to <http://localhost:3000/> in your browser.
 
-Install the dependencies and start the server.
-
-```
-npm install
-npm start
-open http://localhost:3000
-```
-
-### Static Files
-
-You can store static files like images, fonts, etc in the `build` folder.
-
-For example, if you copy a file called my_image.png into the build folder you can access it using `http://localhost:3000/build/my_image.png`.
-
-### Linting
-
-This boilerplate project includes React ESLint configuration.
-
-```
-npm run lint
-```
-
-### Dependencies
+## Dependencies
 
 * React
 * Webpack
 * [babel-loader](https://github.com/babel/babel-loader)
 * [webpack-dev-server](https://github.com/webpack/webpack-dev-server)
+* Cleverbot-node
+* UUidv4
+
+## Guidelines and Info
+
+You can post messages and travel to any chat rooms with a default username of Anonymous.
+To change username, type a name and press Enter in the user bar.
+To send a message, type a message and press Enter in the message bar.
+To send an image, type the image url ending with jpeg, png or gif.
+
+## Screenshots
+
+!["Screenshot of Main page"](https://github.com/Zushisan/tweeter/blob/master/docs/tweeter-main-page.png?raw=true)
+
+!['Screenshot of Main page again"](https://github.com/Zushisan/tweeter/blob/master/docs/tweeter-main-page-2.png?raw=true)
+
+## Try me !!
+
+https://shielded-ridge-72683.herokuapp.com/
