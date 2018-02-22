@@ -31,11 +31,11 @@ To send an image, type the image url ending with jpeg, png or gif.
 
 ## Screenshots
 
-!["Screenshot of Main page"](https://github.com/Zushisan/tweeter/blob/master/docs/tweeter-main-page.png?raw=true)
+!["Screenshot of Main page"](https://github.com/Zushisan/Chatty/blob/master/docs/Chatty4.png?raw=true)
 
 !['Chatting"](https://github.com/Zushisan/Chatty/blob/master/docs/Chatty2.png?raw=true)
 
-!["Screenshot of Bot chat room"](https://github.com/Zushisan/tweeter/blob/master/docs/tweeter-main-page.png?raw=true)
+!["Screenshot of Bot chat room"](https://github.com/Zushisan/Chatty/blob/master/docs/Chatty3.png?raw=true)
 
 ## Try me !!
 
