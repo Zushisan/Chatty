@@ -6,9 +6,6 @@ class NavBar extends Component {
     let currentRoom = this.props.currentRoom;
     let roomUsers = this.props.roomUsers
 
-    // if(currentRoom === undefined){
-    //   currentRoom = "mainRoom";
-    // }
     return <nav className="navbar">
         <a href="/" className="navbar-brand">
           Chatty
@@ -36,7 +33,7 @@ class NavBar extends Component {
         
 
         <span className="navbar-users">
-          {users === "1" ? (
+          {users === 1 ? (
             <span> You are alone right now. </span>
           ) : (
             <span> Connected users: {users} </span>

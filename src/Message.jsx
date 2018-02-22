@@ -7,11 +7,7 @@ class Message extends Component {
     const content = this.props.content;   
     const color = this.props.color;
 
-    // Checking for img
-    // let isImg = %r{^http://.*\.(jpeg|jpg|gif|png)$}i.test("content");
-    // /^https ?://(?:[a-z0-9\-]+\.)+[a-z]{2,6}(?:/[^/#?]+)+\.(?:jpg|gif|png)$/i
-    // 	(?i) \.(jpg | png | gif)$
-    const reg = new RegExp('^https ?://(?:[a-z0-9\-]+\.)+[a-z]{2,6}(?:/[^/#?]+)+\.(?:jpg|gif|png)$/i')
+    const reg = new RegExp('^https://.*(\.gif|\.jpg|\.png)')
     let isImg = reg.test(content);
 
     return <div>
