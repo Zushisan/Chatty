@@ -4,6 +4,7 @@ class NavBar extends Component {
   render() {
     const users = this.props.connectedUsers;
     let currentRoom = this.props.currentRoom;
+    let roomUsers = this.props.roomUsers
 
     // if(currentRoom === undefined){
     //   currentRoom = "mainRoom";
@@ -15,22 +16,22 @@ class NavBar extends Component {
         
           <span>
             {(currentRoom === "mainRoom" ?
-              <button name="mainRoom" className="active-button"> Main Chat </button> :
+              <button name="mainRoom" className="active-button"> Main Chat ({roomUsers[0].length}) </button> :
               <button name="mainRoom" className="inactive-button" onClick={event => {
                   this.props.changeRoom(event.target.name);
-            }}> Main Chat </button>)}
+            }}> Main Chat ({roomUsers[0].length}) </button>)}
 
             {(currentRoom === "botRoom" ?
-              <button name="botRoom" className="active-button"> Bot Chat </button> :
+              <button name="botRoom" className="active-button"> Bot Chat ({roomUsers[1].length}) </button> :
               <button name="botRoom" className="inactive-button" onClick={event => {
                   this.props.changeRoom(event.target.name);
-            }}> Bot Chat </button>)}
+            }}> Bot Chat ({roomUsers[1].length}) </button>)}
 
               {(currentRoom === "lightRoom" ?
-              <button name="lightRoom" className="active-button"> Light Chat </button> :
+              <button name="lightRoom" className="active-button"> Light Chat ({roomUsers[2].length}) </button> :
               <button name="lightRoom" className="inactive-button" onClick={event => {
                   this.props.changeRoom(event.target.name);
-            }}> Light Chat </button>)}
+            }}> Light Chat ({roomUsers[2].length}) </button>)}
           </span>
         
 

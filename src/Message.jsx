@@ -11,7 +11,8 @@ class Message extends Component {
     // let isImg = %r{^http://.*\.(jpeg|jpg|gif|png)$}i.test("content");
     // /^https ?://(?:[a-z0-9\-]+\.)+[a-z]{2,6}(?:/[^/#?]+)+\.(?:jpg|gif|png)$/i
     // 	(?i) \.(jpg | png | gif)$
-    let isImg = /\.(gif|jpg|jpeg|png)$/i.test(content);
+    const reg = new RegExp('^https ?://(?:[a-z0-9\-]+\.)+[a-z]{2,6}(?:/[^/#?]+)+\.(?:jpg|gif|png)$/i')
+    let isImg = reg.test(content);
 
     return <div>
         <div className="message">
@@ -36,8 +37,3 @@ class Message extends Component {
 }
 export default Message;
 
-// {
-// 	(this.state.connectedUsers === "1") ?
-// 	<span> You are alone right now. </span> :
-// 	<span>Connected users: {this.state.connectedUsers} </span>
-// }

@@ -68,7 +68,12 @@ class App extends Component {
             content: "WELCOME TO CHATTY"
           };
           const initMessages = data.messages.concat(welcomeMessage);
-          that.setState({ messages: initMessages });
+          that.setState({
+            messages: initMessages,
+            mainRoom: data.rooms.mainRoom,
+            botRoom: data.rooms.botRoom,
+            lightRoom: data.rooms.lightRoom
+          });
           break;
         case "incomingRoomChange":
           // Setting the name format displayed, not really elegant
@@ -118,6 +123,9 @@ class App extends Component {
               currentRoom: that.state.currentUser.currentRoom
             }})
           break;
+        case "incomingRoomSetters":
+            that.setState({ mainRoom: data.rooms.mainRoom, botRoom: data.rooms.botRoom, lightRoom: data.rooms.lightRoom })
+          break;
         default:
           // show an error in the console if the message type is unknown
           throw new Error("Unknown event type " + data.type);
@@ -151,14 +159,12 @@ class App extends Component {
     };
     this.socket.send(JSON.stringify(newUser));
     this.setState({
-      currentUser: { name: username, color: this.state.currentUser.color, currentRoom: this.state.currentUser.currentRoom }
+      currentUser: { name: username, color: this.state.currentUser.color, currentRoom: this.state.currentUser.currentRoom, id: this.state.currentUser.id }
     });
   };
 
+  // Handle the general changing of rooms
   changeRoom = room => {
-    const currentRoom = room;
-    let setRoom = this.state[room];
-    setRoom.push(this.state.currentUser.id); // Will be changed to IDs
 
     let newState = {
       currentUser: {
@@ -169,15 +175,15 @@ class App extends Component {
       }
     };
 
-    newState[room] = setRoom;
-    const toServerNew = { type:"postRoomChange", room: room, user: this.state.currentUser.name };
-    const toServerOld = { type: "postRoomExit", oldRoom: this.state.currentUser.currentRoom, user: this.state.currentUser.name };
+    const toServerNew = { type:"postRoomChange", room: room, oldRoom:this.state.currentUser.currentRoom, user: this.state.currentUser.name, id: this.state.currentUser.id };
+    const toServerOld = { type: "postRoomExit", oldRoom: this.state.currentUser.currentRoom, user: this.state.currentUser.name, id: this.state.currentUser.id };
      // Info for our server
 
     this.socket.send(JSON.stringify(toServerNew));
     this.socket.send(JSON.stringify(toServerOld));
     this.setState(newState);
-  };  
+  };
+  
 
   scrollToBottom = () => {
     window.scrollTo(0, document.body.scrollHeight);
@@ -186,10 +192,21 @@ class App extends Component {
   render() {
     return (
       <div>
-        <NavBar changeRoom={this.changeRoom} connectedUsers={this.state.connectedUsers} currentRoom={this.state.currentUser.currentRoom} />
+        <NavBar 
+          changeRoom={this.changeRoom} 
+          connectedUsers={this.state.connectedUsers} 
+          currentRoom={this.state.currentUser.currentRoom}
+          roomUsers={[this.state.mainRoom, this.state.botRoom, this.state.lightRoom]} 
+        />
         <div>
-          <MessageList messages={this.state.messages} currentRoom={this.state.currentUser.currentRoom} />
-          <ChatBar newUser={this.newUser} newMessage={this.newMessage} />
+          <MessageList 
+            messages={this.state.messages} 
+            currentRoom={this.state.currentUser.currentRoom} 
+          />
+          <ChatBar 
+            newUser={this.newUser} 
+            newMessage={this.newMessage} 
+          />
         </div>
       </div>
     );

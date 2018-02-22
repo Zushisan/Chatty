@@ -29,7 +29,15 @@ let botData = "";
 // the ws parameter in the callback.
 
 let messages = [];
-let messagesInit = { type: "initMessages", messages: messages }; // Storing messages on server to render them to all users on connexion
+
+let rooms = {
+  mainRoom: [],
+  botRoom: [],
+  lightRoom: []
+}
+
+let messagesInit = { type: "initMessages", messages: messages, rooms: rooms }; // Storing messages on server to render them to all users on connexion
+
 
 wss.on("connection", ws => {
   console.log("Client connected");
@@ -50,6 +58,8 @@ wss.on("connection", ws => {
   // ws.color = color; // Custom attribute with the color associated with that user
   let userColor = { type: "incomingColor", color };
   let userId = { type: "incomingId", id: uuidv4() };
+  rooms.mainRoom.push(userId.id); // Initial push as user is in main room by default
+
 
   ws.send(JSON.stringify(userColor));
   ws.send(JSON.stringify(messagesInit));
@@ -81,21 +91,22 @@ wss.on("connection", ws => {
         messages.push(data);
         messagesInit = { type: "initMessages", messages: messages };
 
-        cleverMessage = JSON.stringify(data.content);
-        cleverbot.write(cleverMessage, function(response) {
-          let botResponse = {
-            type: "incomingMessage",
-            username: "bot",
-            content: response.clever_output,
-            id: uuidv4(),
-            color: "#20133b",
-            room: "botRoom"
-          };
-          messages.push(botResponse);
-          botResponse = JSON.stringify(botResponse);
-          ws.broadcast(botResponse);
-        });
-
+        if(data.room === "botRoom"){
+          cleverMessage = JSON.stringify(data.content);
+          cleverbot.write(cleverMessage, function(response) {
+            let botResponse = {
+              type: "incomingMessage",
+              username: "bot",
+              content: response.clever_output,
+              id: uuidv4(),
+              color: "#20133b",
+              room: "botRoom"
+            };
+            messages.push(botResponse);
+            botResponse = JSON.stringify(botResponse);
+            ws.broadcast(botResponse);
+          });
+        }
         break;
       case "postNotification":
         data.type = "incomingNotification";
@@ -105,8 +116,19 @@ wss.on("connection", ws => {
       case "postRoomChange":
         data.type = "incomingRoomChange"; // We want to notify where the user went
         data.content = `${data.user} joined the channel`;
+
+        rooms[data.room].push(data.id)
+        let index = rooms[data.oldRoom].indexOf(data.id);
+        if (index !== -1) {
+          rooms[data.oldRoom].splice(index, 1);
+        }
+
+        let incomingRoomSetters = { type:"incomingRoomSetters", rooms: rooms };
+
         data = JSON.stringify(data);
+        incomingRoomSetters = JSON.stringify(incomingRoomSetters);
         ws.allbutme(data);
+        ws.broadcast(incomingRoomSetters);
         return;
       case "postRoomExit":
         data.type = "incomingRoomExit";
@@ -126,11 +148,23 @@ wss.on("connection", ws => {
     type: "incomingNumberOfConnexions",
     count: wss.clients.size
   };
+
+  let onConnectRooms = { type: "incomingRoomSetters", rooms: rooms };
+  ws.broadcast(JSON.stringify(onConnectRooms));
   ws.broadcast(JSON.stringify(numberOfConnexions));
   // Set up a callback for when a client closes the socket. This usually means they closed their browser.
   ws.on("close", () => {
+
+    for(room in rooms){
+      let index = rooms[room].indexOf(userId.id)
+      if(index !== -1){
+        rooms[room].splice(index, 1);
+      }
+    }
+
     console.log("Client disconnected");
     numberOfConnexions.count = wss.clients.size;
+    ws.broadcast(JSON.stringify(onConnectRooms));
     ws.broadcast(JSON.stringify(numberOfConnexions));
   });
 });
